@@ -27,8 +27,13 @@
 
   `GET`
   
-* **URL Params**
-  `NONE`
+* **Query Params**
+  **Optional:**
+  - `page`: 1 `Default`
+  - `limit`: 5 `Default`
+
+  **example**
+  `/rides?page=1&limit=3`
 
 * **Success Response:**
 

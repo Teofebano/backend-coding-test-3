@@ -156,6 +156,30 @@ describe('API tests', () => {
             .expect(200, done);
         });
       });
+
+      describe("GET /rides with pagination params page=2&limit=4", () => {
+        before((done) => {
+          db.serialize((err) => {
+            if (err) {
+              return done(err);
+            }
+            const values = [payload.start_lat, payload.start_long, payload.end_lat, payload.end_long, payload.rider_name, payload.driver_name, payload.driver_vehicle];
+            const insertQuery = "INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            const numDummy = 10
+            for (let i = 0; i < numDummy; i++) {
+              db.run(insertQuery, values, (err) => {});
+            }
+            done();
+          });
+        });
+    
+        it("should return success for pagination", (done) => {
+          request(app)
+            .get("/rides?page=2&limit=4")
+            .expect("Content-Type", "application/json; charset=utf-8")
+            .expect(200, done);
+        });
+      });
     
       describe("GET /rides/:id with data", () => {
         it("should return success", (done) => {
