@@ -141,6 +141,20 @@ describe("API tests", () => {
         .expect("Content-Type", "application/json; charset=utf-8")
         .expect(400, msg, done);
     });
+
+    it("should return error when post ride because of SQL Injection", (done) => {
+      const invalidStartLat = {...payload }
+      invalidStartLat.start_lat = "'"
+      const msg = {
+        error_code: "SERVER_ERROR",
+        message: "Unknown error",
+      }
+      request(app)
+        .post("/rides")
+        .send(invalidStartLat)
+        .expect("Content-Type", "application/json; charset=utf-8")
+        .expect(500, msg, done);
+    });
   });
 
   describe("GET /rides with data", () => {
@@ -174,6 +188,17 @@ describe("API tests", () => {
         .expect("Content-Type", "application/json; charset=utf-8")
         .expect(200, done);
     });
+
+    it("should return error when fetching with pagination because of SQL Injection", (done) => {
+      const msg = {
+        error_code: "SERVER_ERROR",
+        message: "Unknown error",
+      }
+      request(app)
+        .get("/rides?page='&limit='")
+        .expect("Content-Type", "application/json; charset=utf-8")
+        .expect(500, msg, done);
+    });
   });
 
   describe("GET /rides/:id with data", () => {
@@ -182,6 +207,17 @@ describe("API tests", () => {
         .get("/rides/1")
         .expect("Content-Type", "application/json; charset=utf-8")
         .expect(200, done);
+    });
+
+    it("should return error when fetching by id because of SQL Injection", (done) => {
+      const msg = {
+        error_code: "SERVER_ERROR",
+        message: "Unknown error",
+      }
+      request(app)
+        .get("/rides/'")
+        .expect("Content-Type", "application/json; charset=utf-8")
+        .expect(500, msg, done);
     });
   });
 });

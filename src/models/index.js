@@ -1,10 +1,11 @@
+const SqlString = require("sqlstring");
 const validation = require("../helpers/validation");
 
 class RidesModel {
   static async GetRides(db, limit, offset) {
     try {
-      const getRidesQuery = "SELECT * FROM Rides LIMIT ? OFFSET ?";
-      const rows = await db.allAsync(getRidesQuery, [limit, offset]);
+      const getRidesQuery = SqlString.format("SELECT * FROM Rides LIMIT ? OFFSET ?", [limit, offset]);
+      const rows = await db.allAsync(getRidesQuery);
       if (rows.length === 0) {
         return {
           status: 404,
@@ -39,9 +40,9 @@ class RidesModel {
         payload.body.end_lat, payload.body.end_long, payload.body.rider_name,
         payload.body.driver_name, payload.body.driver_vehicle];
 
-      const postQuery = "INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)";
-      const insertedRow = await db.runAsync(postQuery, values);
-      const lastRide = await db.allAsync((`SELECT * FROM Rides WHERE rideID = ${insertedRow.lastID}`));
+      const postQuery = SqlString.format("INSERT INTO Rides(startLat, startLong, endLat, endLong, riderName, driverName, driverVehicle) VALUES (?, ?, ?, ?, ?, ?, ?)", values);
+      const insertedRow = await db.runAsync(postQuery);
+      const lastRide = await db.allAsync(SqlString.format("SELECT * FROM Rides WHERE rideID = ?", insertedRow.lastID));
       return {
         status: 201,
         result: lastRide,
@@ -59,7 +60,7 @@ class RidesModel {
 
   static async GetRideById(db, id) {
     try {
-      const findQuery = `SELECT * FROM Rides WHERE rideID=${id}`;
+      const findQuery = SqlString.format("SELECT * FROM Rides WHERE rideID=?", id);
       const rows = await db.allAsync(findQuery);
       if (rows.length === 0) {
         return {
